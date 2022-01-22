@@ -1,9 +1,10 @@
 plugins {
-    id "com.jfrog.bintray" version "1.7.3"
+    id "com.jfrog.bintray" version "1.8.5"
 }
 
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
 
 String projectVersion = "1.0.5"
 String projectGroup = "ru.egslava"
@@ -12,118 +13,167 @@ version = projectVersion
 group = projectGroup
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '25.0.2'
+    compileSdkVersion 31
+    buildToolsVersion '29.0.3'
 
 
     defaultConfig {
-        minSdkVersion 9
-        targetSdkVersion 25
+        minSdkVersion 14
+        targetSdkVersion 31
         versionCode 1
         versionName projectVersion
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 }
 
 dependencies {
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    testImplementation('androidx.test.espresso:espresso-core:3.1.0', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:25.2.0'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    api('com.rengwuxian.materialedittext:library:2.1.4')
 
-    testCompile 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13.1'
 }
 
 
-// bintray deploy ....
-String projectName = "edittext-mask"
-String projectDescription = GFileUtils.readFile(new File("README.md"))
-String webUrl = "https://github.com/egslava/edittext-mask"
-String gitUrl = "https://github.com/egslava/edittext-mask.git"
+repositories {
+    mavenCentral()
+}
 
+def getArtifactId = { ->
+    return "MaskedEditText"
+}
 
-install {
-    repositories.mavenInstaller {
-        pom {
-            project {
-                packaging 'aar'
-                
-                name projectName
-                description projectDescription
-                url webUrl
+task androidJavadocs(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    android.libraryVariants.all { variant ->
+        if (variant.name == 'release') {
+            if (variant.hasProperty('javaCompileProvider')) {
+                // Android 3.3.0+
+                owner.classpath += variant.javaCompileProvider.get().classpath
+            } else {
+                owner.classpath += variant.javaCompile.classpath
+            }
+        }
+    }
+    exclude '**/R.html', '**/R.*.html', '**/index.html'
+}
 
-                inceptionYear '2017' // HARDCODED
+task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
+    archiveClassifier.set('javadoc')
+    from androidJavadocs.destinationDir
+}
 
+task androidSourcesJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from android.sourceSets.main.java.srcDirs
+}
+
+publishing {
+    publications {
+        MaskedEditText(MavenPublication) {
+            groupId this.group
+            artifactId getArtifactId()
+            version this.version
+            artifact("$buildDir/outputs/aar/${getArtifactId()}-debug.aar")
+            artifact androidJavadocsJar
+            artifact androidSourcesJar
+
+            pom {
+                name = 'Masked Edit Text'
+                description = 'Build basic Android UI using JSON schema. Generate repetitive views with different configurations in easy steps.'
+                url = 'https://github.com/ellykits/neat-form'
                 licenses {
                     license {
-                        name 'MIT'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        distribution 'repo'
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+            }
+            //Refer to this gist https://gist.github.com/Robyer/a6578e60127418b380ca133a1291f017
+            pom.withXml {
+                final dependenciesNode = asNode().appendNode('dependencies')
+
+                ext.addDependency = { dep, String scope ->
+                    if (dep.group == null || dep.version == null || dep.name == null || dep.name == "unspecified")
+                        return // ignore invalid dependencies
+
+                    final dependencyNode = dependenciesNode.appendNode('dependency')
+                    dependencyNode.appendNode('groupId', dep.group)
+                    dependencyNode.appendNode('artifactId', dep.name)
+                    dependencyNode.appendNode('version', dep.version)
+                    dependencyNode.appendNode('scope', scope)
+
+                    if (!dep.transitive) {
+                        // If this dependency is not transitive, we should force exclude all its dependencies from the POM
+                        final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
+                        exclusionNode.appendNode('groupId', '*')
+                        exclusionNode.appendNode('artifactId', '*')
+                    } else if (!dep.properties.excludeRules.empty) {
+                        // Otherwise add specified exclude rules
+                        final exclusionsNode = dependencyNode.appendNode('exclusions')
+                        dep.properties.excludeRules.each { rule ->
+                            final exclusionNode = exclusionsNode.appendNode('exclusion')
+                            exclusionNode.appendNode('groupId', rule.group ?: '*')
+                            exclusionNode.appendNode('artifactId', rule.module ?: '*')
+                        }
                     }
                 }
 
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url webUrl
-                }
-                developers {
-                    developer {
-                        id 'egslava'
-                        name 'Slava Egorenkov'
-                        email 'egslava@gmail.com'
-                    }
-                }
+                // List all "implementation" dependencies (for old Gradle)
+                configurations.implementation.getDependencies().each { dep -> addDependency(dep, "implementation") }
+                // List all "api" dependencies (for new Gradle) as "implementation" dependencies
+                configurations.api.getDependencies().each { dep -> addDependency(dep, "implementation") }
+                // List all "implementation" dependencies (for new Gradle) as "runtime" dependencies
+                configurations.implementation.getDependencies().each { dep -> addDependency(dep, "runtime") }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            /**
+             * Configure path of the package repository on Github using the GITHUB_USER_ID and
+             * Git Repository
+             */
+            url = uri("https://maven.pkg.github.com/ellykits/neat-form")
+            credentials {
+                /** get credentials from local.properties in root project folder file with
+                 ** gpr.usr=GITHUB_USER_ID & gpr.key=PERSONAL_ACCESS_TOKEN otherwise
+                 ** Set env variable GPR_USER & GPR_API_KEY**/
+
+                username = properties['gpr.usr'] ?: System.getenv("GPR_USER")
+                password = properties['gpr.key'] ?: System.getenv("GPR_API_KEY")
             }
         }
     }
 }
 
-// The end of the gradle file is for JCenter publication.
-// The original code was written with look at Alexander Matveychuk's code
-// and
-// https://www.virag.si/2015/01/publishing-gradle-android-library-to-jcenter/
-
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
-}
-
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-artifacts {
-    archives javadocJar
-    archives sourcesJar
-}
-
 bintray {
-    user = bintrayUser
-    key = bintrayApikey
-
+    user = properties['jcenter.usr'] ?: System.getenv('BINTRAY_USER')
+    key = properties['jcenter.key'] ?: System.getenv('BINTRAY_KEY')
     configurations = ['archives']
     pkg {
-        repo = "maven"
-        name = projectName
-        userOrg = user
-//        projectUrl = webUrl
-        vcsUrl = gitUrl
-        licenses = ["MIT"]
-        group = projectGroup
+        repo = 'nerdstone'
+        name = 'neat-form-core'
+        licenses = ['Apache-2.0']
+        desc = 'Build basic android UI using JSON standard. Generate repetitive views with different configurations in easy steps.'
         publish = true
-
+        vcsUrl = "https://github.com/ellykits/neat-form"
+        issueTrackerUrl = 'https://github.com/ellykits/neat-form/issues'
+        labels = ['rules-engine', 'kotlin-android', 'gson', 'form', 'json-forms']
+        publicDownloadNumbers = true
         version {
-            name = projectVersion
-//            desc = projectDescription
-            vcsTag = projectVersion
+            name = this.version
+            desc = "Masked Edit Text ${this.version}"
+            released = new Date()
+            vcsTag = this.version
         }
     }
+    publications = ['MaskedEditText']
 }
