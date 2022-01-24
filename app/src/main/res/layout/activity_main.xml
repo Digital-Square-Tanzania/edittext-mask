@@ -17,7 +17,7 @@
         android:text="@string/please_provide_phone_number"
         />
 
-    <br.com.sapereaude.maskedEditText.MaskedEditText
+    <com.softmed.masked.MaskedEditText
         android:id="@+id/phone_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

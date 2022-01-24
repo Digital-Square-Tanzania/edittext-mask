@@ -11,6 +11,6 @@ public class TestActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(br.com.sapereaude.maskedEditText.test.R.layout.activity_main);
+        setContentView(com.softmed.masked.test.R.layout.activity_main);
     }
 }

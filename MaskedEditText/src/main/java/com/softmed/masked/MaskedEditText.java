@@ -1,4 +1,4 @@
-package br.com.sapereaude.maskedEditText;
+package com.softmed.masked;
 
 import static android.content.ContentValues.TAG;
 
@@ -17,6 +17,8 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.rengwuxian.materialedittext.MaterialEditText;
+
+import com.softmed.masked.R;
 
 public class MaskedEditText extends MaterialEditText implements TextWatcher {
 
@@ -198,6 +200,15 @@ public class MaskedEditText extends MaterialEditText implements TextWatcher {
 
     public String getMask() {
         return this.mask;
+    }
+
+    public void setAllowedChars(String allowedChars) {
+        this.allowedChars = allowedChars;
+        cleanUp();
+    }
+
+    public String getAllowedChars() {
+        return allowedChars;
     }
 
     public void setImeActionEnabled(boolean isEnabled) {

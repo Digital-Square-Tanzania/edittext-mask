@@ -33,7 +33,7 @@ import static ru.egslava.lib_phone.actions.KeepHintViewAction.keepHints;
 @RunWith(AndroidJUnit4.class)
 public class MainActivityTest {
 
-    public static final int phone_input = br.com.sapereaude.maskedEditText.test.R.id.vControl;
+    public static final int phone_input = com.softmed.masked.test.R.id.vControl;
 
     @Rule
     public ActivityTestRule<TestActivity> mActivityTestRule = new ActivityTestRule<>(TestActivity.class);

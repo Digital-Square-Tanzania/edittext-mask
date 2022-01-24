@@ -38,7 +38,7 @@ Or download project and plug it in as a library.
 
 Add _xmlns:mask="http://schemas.android.com/apk/res-auto"_ to your layout xml root:
 
-      <br.com.sapereaude.maskedEditText.MaskedEditText
+      <com.softmed.masked.MaskedEditText
         android:id="@+id/phone_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -53,7 +53,7 @@ Where _mask_ is the input mask you want and '#' is an editable position (will be
 
 You can optionally set the representation character (in case you don't want to use '#'):
 
-    <br.com.sapereaude.maskedEditText.MaskedEditText
+    <com.softmed.masked.MaskedEditText
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         mask:mask="ccc.ccc.ccc-cc"
@@ -76,7 +76,7 @@ You can also change the mask and the representation character programatically:
 	
 To enable Enter softkey action (IME action):
 
-	<br.com.sapereaude.maskedEditText.MaskedEditText
+	<com.softmed.masked.MaskedEditText
 	    ...
 	    mask:enable_ime_action="true"
 	    ...
@@ -106,7 +106,7 @@ compile 'ru.egslava:MaskedEditText:1.0.5'
 
 Добавить _xmlns:mask="http://schemas.android.com/apk/res-auto"_ в корневой элемент файла разметки:
 
-      <br.com.sapereaude.maskedEditText.MaskedEditText
+      <com.softmed.masked.MaskedEditText
         android:id="@+id/phone_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -122,7 +122,7 @@ _mask_ задаёт требуемую маску, символ '#' задаёт
 
 Если использовать '#' нельзя, то можно попробовать использовать другой символ:
 
-    <br.com.sapereaude.maskedEditText.MaskedEditText
+    <com.softmed.masked.MaskedEditText
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         mask:mask="ccc.ccc.ccc-cc"
@@ -143,7 +143,7 @@ _mask_ задаёт требуемую маску, символ '#' задаёт
 	
 Чтобы включить обработку нажатия Enter (IME action):
 
-	<br.com.sapereaude.maskedEditText.MaskedEditText
+	<com.softmed.masked.MaskedEditText
 	    ...
 	    mask:enable_ime_action="true"
 	    ...

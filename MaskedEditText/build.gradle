@@ -7,7 +7,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
 String projectVersion = "1.0.5"
-String projectGroup = "ru.egslava"
+String projectGroup = "com.softmed.masked"
 
 version = projectVersion
 group = projectGroup

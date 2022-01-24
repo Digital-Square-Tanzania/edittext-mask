@@ -6,7 +6,7 @@ import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import br.com.sapereaude.maskedEditText.MaskedEditText;
+import com.softmed.masked.MaskedEditText;
 
 public class MainActivity extends AppCompatActivity {
 
