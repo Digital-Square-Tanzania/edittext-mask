@@ -7,7 +7,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://schemas.android.com/apk/res/android">
 
-    <com.softmed.masked.MaskedEditText
+    <io.github.softmedtanzania.MaskedEditText
         android:id="@+id/vControl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

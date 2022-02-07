@@ -1,4 +1,4 @@
-package com.softmed.masked;
+package io.github.softmedtanzania;
 
 import static android.content.ContentValues.TAG;
 
@@ -17,8 +17,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.rengwuxian.materialedittext.MaterialEditText;
-
-import com.softmed.masked.R;
 
 public class MaskedEditText extends MaterialEditText implements TextWatcher {
 

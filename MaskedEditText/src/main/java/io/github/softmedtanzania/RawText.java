@@ -1,4 +1,4 @@
-package com.softmed.masked;
+package io.github.softmedtanzania;
 
 /**
  * Raw text, another words TextWithout mask characters

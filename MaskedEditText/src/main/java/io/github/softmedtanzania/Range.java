@@ -1,4 +1,4 @@
-package com.softmed.masked;
+package io.github.softmedtanzania;
 
 public class Range {
 	private int start;
