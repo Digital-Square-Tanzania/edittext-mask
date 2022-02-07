@@ -63,7 +63,6 @@ To enable Enter softkey action (IME action):
 	    ...
 	/>
     
-**Announcement**: [let's travel the world](https://github.com/egslava/edittext-mask/issues/65)! or let's just be guests :)
 
 Or programmatically:
 
